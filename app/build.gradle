@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdk 34
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.bignerdranch.android.geoquiz"
         minSdkVersion 24
-        targetSdkVersion 32
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
@@ -29,6 +29,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 
