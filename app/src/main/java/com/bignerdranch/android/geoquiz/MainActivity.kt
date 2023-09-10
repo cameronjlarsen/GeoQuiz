@@ -2,7 +2,6 @@ package com.bignerdranch.android.geoquiz
 
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.bignerdranch.android.geoquiz.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
@@ -22,9 +21,11 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_asia, true),
     )
 
-    private var resultBank = BooleanArray(questionBank.size)
+    private var answerButtonState = BooleanArray(questionBank.size) { true }
 
     private var currentIndex = 0
+
+    private var currentScore = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,23 +33,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.trueButton.setOnClickListener { view: View ->
-            checkAnswer(true, view)
+        binding.trueButton.setOnClickListener {
+            checkAnswer(true)
         }
 
-        binding.falseButton.setOnClickListener { view: View ->
-            checkAnswer(false, view)
+        binding.falseButton.setOnClickListener {
+            checkAnswer(false)
         }
 
         binding.nextButton.setOnClickListener {
             currentIndex = (currentIndex + 1) % questionBank.size
             updateQuestionText()
-            updateButtons(false)
+            updateAnswerButtonState()
         }
 
-        binding.prevButton.setOnClickListener{
+        binding.prevButton.setOnClickListener {
             currentIndex = (currentIndex - 1) % questionBank.size
             updateQuestionText()
+            updateAnswerButtonState()
         }
 
         updateQuestionText()
@@ -84,22 +86,37 @@ class MainActivity : AppCompatActivity() {
         binding.questionTextView.setText(questionTextResId)
     }
 
-    private fun checkAnswer(userAnswer: Boolean, view: View) {
-        val correctAnswer = questionBank[currentIndex].answer
-        resultBank[currentIndex] = correctAnswer
+    private fun gradeQuiz() {
+        val finalScore = currentScore / questionBank.size * 100
+        val messageResId = "Final Score: $finalScore%"
+        Snackbar.make(findViewById(R.id.question_text_view), messageResId, Snackbar.LENGTH_SHORT)
+            .show()
+    }
 
+    private fun checkAnswer(userAnswer: Boolean) {
+        val correctAnswer = questionBank[currentIndex].answer
+        answerButtonState[currentIndex] = false
+
+        if (userAnswer == correctAnswer) {
+            currentScore += 1
+        }
         val messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
         }
 
-        Snackbar.make(view, messageResId, Snackbar.LENGTH_SHORT).show()
-        updateButtons(false)
+        Snackbar.make(findViewById(R.id.question_text_view), messageResId, Snackbar.LENGTH_SHORT)
+            .show()
+        updateAnswerButtonState()
+
+        if (currentIndex == questionBank.size - 1) {
+            gradeQuiz()
+        }
     }
 
-    private fun updateButtons(value: Boolean){
-        binding.trueButton.isEnabled = value
-        binding.falseButton.isEnabled = value
+    private fun updateAnswerButtonState() {
+        binding.trueButton.isEnabled = answerButtonState[currentIndex]
+        binding.falseButton.isEnabled = answerButtonState[currentIndex]
     }
 }
