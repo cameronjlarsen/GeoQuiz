@@ -2,7 +2,9 @@ package com.bignerdranch.android.geoquiz
 
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.bignerdranch.android.geoquiz.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 
@@ -12,20 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val questionBank = listOf<Question>(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true),
-    )
-
-    private var answerButtonState = BooleanArray(questionBank.size) { true }
-
-    private var currentIndex = 0
-
-    private var currentScore = 0
+    private val quizViewModel: QuizViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,63 +31,49 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.nextButton.setOnClickListener {
-            currentIndex = (currentIndex + 1) % questionBank.size
-            updateQuestionText()
-            updateAnswerButtonState()
+            quizViewModel.moveToNext()
+            updateQuestion()
         }
 
         binding.prevButton.setOnClickListener {
-            currentIndex = (currentIndex - 1) % questionBank.size
-            updateQuestionText()
-            updateAnswerButtonState()
+            quizViewModel.moveToPrev()
+            updateQuestion()
         }
 
-        updateQuestionText()
+        binding.restartButton.setOnClickListener {
+            quizViewModel.resetQuiz()
+            binding.restartButton.isVisible = false
+            updateQuestion()
+        }
+
+        updateQuestion()
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG, "onStart() called")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "onResume() called")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d(TAG, "onPause() called")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(TAG, "onStop() called")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "onDestroy() called")
-    }
-
-    private fun updateQuestionText() {
-        val questionTextResId = questionBank[currentIndex].textResId
+    private fun updateQuestion() {
+        val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
+        toggleAnswerButtons(!quizViewModel.currentQuestionAnswered)
+        binding.prevButton.isEnabled = !quizViewModel.isFirstQuestion()
+        binding.nextButton.isEnabled = !quizViewModel.isLastQuestion()
     }
 
-    private fun gradeQuiz() {
-        val finalScore = currentScore / questionBank.size * 100
-        val messageResId = "Final Score: $finalScore%"
+    private fun showQuizGrade() {
+        val finalScore = quizViewModel.gradeQuiz()
+        val messageResId = "You got $finalScore% correct!"
         Snackbar.make(findViewById(R.id.question_text_view), messageResId, Snackbar.LENGTH_SHORT)
             .show()
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
-        answerButtonState[currentIndex] = false
+        val correctAnswer = quizViewModel.currentQuestionAnswer
+
+        toggleAnswerButtons(false)
+        quizViewModel.currentQuestionAnswered = true
+        binding.nextButton.isEnabled = !quizViewModel.isLastQuestion()
+        binding.prevButton.isEnabled = !quizViewModel.isFirstQuestion()
 
         if (userAnswer == correctAnswer) {
-            currentScore += 1
+            quizViewModel.updateScore()
         }
         val messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
@@ -108,15 +83,15 @@ class MainActivity : AppCompatActivity() {
 
         Snackbar.make(findViewById(R.id.question_text_view), messageResId, Snackbar.LENGTH_SHORT)
             .show()
-        updateAnswerButtonState()
 
-        if (currentIndex == questionBank.size - 1) {
-            gradeQuiz()
+        if (quizViewModel.isLastQuestion()) {
+            showQuizGrade()
         }
+        binding.restartButton.isVisible = quizViewModel.isLastQuestion()
     }
 
-    private fun updateAnswerButtonState() {
-        binding.trueButton.isEnabled = answerButtonState[currentIndex]
-        binding.falseButton.isEnabled = answerButtonState[currentIndex]
+    private fun toggleAnswerButtons(value: Boolean) {
+        binding.trueButton.isEnabled = value
+        binding.falseButton.isEnabled = value
     }
 }
