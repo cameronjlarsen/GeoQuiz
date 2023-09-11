@@ -1,21 +1,26 @@
-package com.bignerdranch.android.geoquiz;
+package com.bignerdranch.android.geoquiz
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 
-const val CURRENT_INDEX_KEY = "CURRENT_INDEX_KEY "
-const val CURRENT_SCORE_KEY = "CURRENT_SCORE_KEY "
+const val CURRENT_INDEX_KEY = "CURRENT_INDEX_KEY"
+const val CURRENT_SCORE_KEY = "CURRENT_SCORE_KEY"
+const val IS_CHEATER_KEY = "IS_CHEATER_KEY"
 
-public class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
+class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private val questionBank = listOf<Question>(
         Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
+        Question(R.string.question_oceans, false),
+        Question(R.string.question_mideast, true),
+        Question(R.string.question_africa, true),
+        Question(R.string.question_americas, false),
         Question(R.string.question_asia, true),
     )
+
+    var isCheater: Boolean
+        get() = savedStateHandle.get(IS_CHEATER_KEY) ?: false
+        set(value) = savedStateHandle.set(IS_CHEATER_KEY, value)
 
     private var currentIndex: Int
         get() = savedStateHandle.get(CURRENT_INDEX_KEY) ?: 0

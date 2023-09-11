@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">GeoQuiz</string>
-    <string name="question_australia">Canberra is the capital of Australia.</string>
-    <string name="question_oceans">The Pacific Ocean is larger than the Atlantic Ocean.</string>
-    <string name="question_mideast">The Suez Canal connects the Red Sea to the Indian Ocean.</string>
-    <string name="question_africa">The source of the Nile River is in Egypt.</string>
-    <string name="question_americas">The Amazon River is the longest river in the Americas.</string>
-    <string name="question_asia">Lake Baikal is the world\'s oldest and deepest freshwater lake.</string>
+    <string name="question_australia">Australia is wider than the moon.</string>
+    <string name="question_oceans">The Mariana Trench is located in the Atlantic Ocean.</string>
+    <string name="question_mideast">Kabul is the capital of Afghanistan.</string>
+    <string name="question_africa">Lake Victoria is the largest lake in Africa.</string>
+    <string name="question_americas">Cheyenne is the capital of Wisconsin.</string>
+    <string name="question_asia">Russia is the largest country in the world by land.</string>
     <string name="true_button">True</string>
     <string name="false_button">False</string>
     <string name="next_button">Next</string>
