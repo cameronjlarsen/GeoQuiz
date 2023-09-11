@@ -73,6 +73,7 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     fun resetQuiz() {
         currentScore = 0
         currentIndex = 0
+        isCheater = false
         for (i in questionBank.indices) {
             questionBank[i].answered = false
         }
